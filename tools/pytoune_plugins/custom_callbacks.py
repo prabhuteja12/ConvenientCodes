@@ -23,21 +23,6 @@ class TensorboardX(Callback):
         self.writer.add_scalar('Train/loss_epoch', logs['loss'], epoch)
 
     def on_batch_end(self, batch, logs):
-        """
-        Is called before the end of each batch.
-
-        Args:
-            batch (int): The batch number.
-            logs (dict): Contains the following keys:
-
-                 * 'batch': The batch number.
-                 * 'loss': The loss of the batch.
-                 * Other metrics: One key for each type of metrics.
-
-        Example::
-
-            logs = {'batch': 6, 'loss': 4.34462, 'accuracy': 0.766}
-        """
         if self.is_staggered:
             self.batch_ind += 1
             batch = self.batch_ind
@@ -47,16 +32,6 @@ class TensorboardX(Callback):
         if batch % 100 == 0:
             for name, param in self.model.model.named_parameters():
                 self.writer.add_histogram(name, param.clone().cpu().data.numpy(), batch)
-
-    # def on_train_begin(self, logs):
-    #     """
-    #     Is called before the beginning of the training.
-
-    #     Args:
-    #         logs (dict): Usually an empty dict.
-    #     """
-    #     inp = torch.rand(1, 3, 300, 300)
-    #     #self.writer.add_graph(self.model.model, input_to_model=inp.cuda() if torch.cuda.is_available() else inp)
 
 
 class ModelCheckpointIter(Callback):
@@ -80,6 +55,7 @@ class LambdaCallback(Callback):
         self.ee_cb = epoch_end_cb
     
     def on_batch_end(self, batch, logs):
+        # TODO
         if self.be_cb is not None:
             pass
 
@@ -100,18 +76,3 @@ class AdjustLrExponential(Callback):
         self.model.optimizer.param_groups[0]['lr'] = lr
         if len(self.model.optimizer.param_groups) > 1:
             self.model.optimizer.param_groups[1]['lr'] = lr * 10
-
-
-# def adjust_learning_rate(optimizer, i_iter):
-#     lr = lr_poly(args.learning_rate, i_iter, args.num_steps, args.power)
-#     optimizer.param_groups[0]['lr'] = lr
-#     if len(optimizer.param_groups) > 1:
-#         optimizer.param_groups[1]['lr'] = lr * 10
-
-
-# def adjust_learning_rate_D(optimizer, i_iter):
-#     lr = lr_poly(args.learning_rate_D, i_iter, args.num_steps, args.power)
-#     optimizer.param_groups[0]['lr'] = lr
-#     if len(optimizer.param_groups) > 1:
-#         optimizer.param_groups[1]['lr'] = lr * 10
-
